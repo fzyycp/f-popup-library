@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="f_library_popup_menu_anim_style">
+        <item name="android:windowEnterAnimation">@anim/f_library_popup_menu_show</item>
+        <item name="android:windowExitAnimation">@anim/f_library_popup_menu_dismiss</item>
+    </style>
+</resources>

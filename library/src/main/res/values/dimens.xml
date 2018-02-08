@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="f_library_menu_item_height">44dp</dimen>
+    <dimen name="f_library_menu_item_padding_lr">8dp</dimen>
+    <dimen name="f_library_menu_item_icon_padding_right">8dp</dimen>
+    <dimen name="f_library_menu_item_text_size">16sp</dimen>
+</resources>

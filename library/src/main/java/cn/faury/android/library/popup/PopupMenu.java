@@ -52,7 +52,7 @@ public class PopupMenu {
      * 弹出框高度
      */
     private int popHeight = getDefaultHeight();
-    
+
     /**
      * 弹出框宽度
      */
@@ -85,7 +85,8 @@ public class PopupMenu {
 
     /**
      * 初始化弹出菜单
-     * @param context
+     *
+     * @param context 上下文
      */
     public PopupMenu(Activity context) {
         this.activity = context;
@@ -93,14 +94,15 @@ public class PopupMenu {
 
     /**
      * 设置高度
+     *
      * @param height 目标高度
      * @return 当前对象
      */
-    public PopupMenu setHeight(int height){
+    public PopupMenu setHeight(int height) {
         if (height <= 0 && height != RecyclerView.LayoutParams.MATCH_PARENT
-                && height != RecyclerView.LayoutParams.WRAP_CONTENT){
+                && height != RecyclerView.LayoutParams.WRAP_CONTENT) {
             this.popHeight = getDefaultHeight();
-        }else {
+        } else {
             this.popHeight = height;
         }
         return this;
@@ -108,13 +110,14 @@ public class PopupMenu {
 
     /**
      * 设置高度
+     *
      * @param width 目标宽度
      * @return 当前对象
      */
-    public PopupMenu setWidth(int width){
-        if (width <= 0 && width != RecyclerView.LayoutParams.MATCH_PARENT){
+    public PopupMenu setWidth(int width) {
+        if (width <= 0 && width != RecyclerView.LayoutParams.MATCH_PARENT) {
             this.popWidth = RecyclerView.LayoutParams.WRAP_CONTENT;
-        }else {
+        } else {
             this.popWidth = width;
         }
         return this;
@@ -122,61 +125,67 @@ public class PopupMenu {
 
     /**
      * 是否显示菜单图标
+     *
      * @param isShow 是否显示
      * @return 当前对象
      */
-    public PopupMenu showIcon(boolean isShow){
+    public PopupMenu showIcon(boolean isShow) {
         this.isShowIcon = isShow;
         return this;
     }
 
     /**
      * 添加单个菜单
+     *
      * @param item 菜单项
      * @return 当前对象
      */
-    public PopupMenu addMenuItem(MenuItem item){
+    public PopupMenu addMenuItem(MenuItem item) {
         menuItems.add(item);
         return this;
     }
 
     /**
      * 添加多个菜单
+     *
      * @param items 菜单列表
      * @return 当前对象
      */
-    public PopupMenu addMenuItem(List<MenuItem> items){
+    public PopupMenu addMenuItem(List<MenuItem> items) {
         menuItems.addAll(items);
         return this;
     }
 
     /**
      * 是否让背景变暗
+     *
      * @param enable 是否变暗
      * @return 当前对象
      */
-    public PopupMenu enableBackgroundDark(boolean enable){
+    public PopupMenu enableBackgroundDark(boolean enable) {
         this.enableBackgroundDark = enable;
         return this;
     }
 
     /**
      * 否是需要动画
+     *
      * @param isAnimation 是否需要动画
      * @return 当前对象
      */
-    public PopupMenu showAnimation(boolean isAnimation){
+    public PopupMenu showAnimation(boolean isAnimation) {
         this.isAnimation = isAnimation;
         return this;
     }
 
     /**
      * 设置动画
+     *
      * @param style 设置动画
      * @return 当前对象
      */
-    public PopupMenu setAnimationStyle(int style){
-        if(style>0){
+    public PopupMenu setAnimationStyle(int style) {
+        if (style > 0) {
             this.animationStyle = style;
         }
         return this;
@@ -184,21 +193,12 @@ public class PopupMenu {
 
     /**
      * 设置菜单点击事件
-     * @param listener
+     *
+     * @param listener 监听器
      * @return 当前对象
      */
-    public PopupMenu setOnMenuItemClickListener(OnMenuItemClickListener listener){
+    public PopupMenu setOnMenuItemClickListener(OnMenuItemClickListener listener) {
         this.onMenuItemClickListener = listener;
-        return this;
-    }
-
-    /**
-     * 显示下拉菜单
-     * @param anchor 目标对象
-     * @return 当前对象
-     */
-    public PopupMenu showAsDropDown(View anchor){
-        showAsDropDown(anchor, 0, 0);
         return this;
     }
 
@@ -206,17 +206,28 @@ public class PopupMenu {
      * 显示下拉菜单
      *
      * @param anchor 目标对象
+     * @return 当前对象
+     */
+    public PopupMenu showAsDropDown(View anchor) {
+        showAsDropDown(anchor, 0, 0);
+        return this;
+    }
+
+    /**
+     * 显示下拉菜单
+     *
+     * @param anchor  目标对象
      * @param xOffset 横向偏移
      * @param yOffset 纵向偏移
      * @return 当前对象
      */
-    public PopupMenu showAsDropDown(View anchor, int xOffset, int yOffset){
-        if (popupWindow == null){
+    public PopupMenu showAsDropDown(View anchor, int xOffset, int yOffset) {
+        if (popupWindow == null) {
             initPopupWindow();
         }
         if (!popupWindow.isShowing()) {
             popupWindow.showAsDropDown(anchor, xOffset, yOffset);
-            if (enableBackgroundDark){
+            if (enableBackgroundDark) {
                 setBackgroundAlpha(1f, alpha, 240);
             }
         }
@@ -225,9 +236,10 @@ public class PopupMenu {
 
     /**
      * 初始化弹窗
+     *
      * @return 弹窗对象
      */
-    private PopupWindow initPopupWindow(){
+    private PopupWindow initPopupWindow() {
         popupWindow = new PopupWindow(activity);
 
         View contentView = LayoutInflater.from(activity).inflate(R.layout.f_library_popup_menu, null);
@@ -238,7 +250,7 @@ public class PopupMenu {
         popupWindow.setContentView(contentView);
         popupWindow.setHeight(popHeight);
         popupWindow.setWidth(popWidth);
-        if (isAnimation){
+        if (isAnimation) {
             popupWindow.setAnimationStyle(animationStyle <= 0 ? R.style.f_library_popup_menu_anim_style : animationStyle);
         }
 
@@ -266,10 +278,11 @@ public class PopupMenu {
 
     /**
      * 获取默认高度
+     *
      * @return 根据ITEM个数计算默认高度
      */
-    private int getDefaultHeight(){
-        if (this.menuItems==null || this.menuItems.size()<=0){
+    private int getDefaultHeight() {
+        if (this.menuItems == null || this.menuItems.size() <= 0) {
             return DEFAULT_ITEM_HEIGHT;
         }
         return this.menuItems.size() * DEFAULT_ITEM_HEIGHT;
@@ -277,8 +290,9 @@ public class PopupMenu {
 
     /**
      * 设置背景色透明度
-     * @param from 起始透明度
-     * @param to 目标透明度
+     *
+     * @param from     起始透明度
+     * @param to       目标透明度
      * @param duration 过渡时间
      */
     private void setBackgroundAlpha(float from, float to, int duration) {
@@ -298,8 +312,8 @@ public class PopupMenu {
     /**
      * 关闭对话框
      */
-    public void dismiss(){
-        if (popupWindow != null && popupWindow.isShowing()){
+    public void dismiss() {
+        if (popupWindow != null && popupWindow.isShowing()) {
             popupWindow.dismiss();
         }
     }
@@ -307,7 +321,7 @@ public class PopupMenu {
     /**
      * 菜单项单击事件
      */
-    public interface OnMenuItemClickListener{
-        void onMenuItemClick(int position,MenuItem item);
+    public interface OnMenuItemClickListener {
+        void onMenuItemClick(int position, MenuItem item);
     }
 }

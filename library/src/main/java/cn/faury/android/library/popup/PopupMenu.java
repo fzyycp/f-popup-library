@@ -3,6 +3,9 @@ package cn.faury.android.library.popup;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.support.annotation.StyleRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -33,6 +36,16 @@ public class PopupMenu {
     private OnMenuItemClickListener onMenuItemClickListener;
 
     /**
+     * 菜单项显示前事件
+     */
+    private OnBeforeShowListener onBeforeShowListener;
+
+    /**
+     * 菜单项关闭后事件
+     */
+    private PopupWindow.OnDismissListener onDismissListener;
+
+    /**
      * 弹窗列表适配器
      */
     private PopupListMenuAdapter popupListMenuAdapter;
@@ -43,14 +56,9 @@ public class PopupMenu {
     private List<MenuItem> menuItems = new ArrayList<>();
 
     /**
-     * 默认菜单项行高
-     */
-    private static final int DEFAULT_ITEM_HEIGHT = 160;
-
-    /**
      * 弹出框高度
      */
-    private int popHeight = getDefaultHeight();
+    private int popHeight = RecyclerView.LayoutParams.WRAP_CONTENT;
 
     /**
      * 弹出框宽度
@@ -60,7 +68,7 @@ public class PopupMenu {
     /**
      * 是否显示按钮图标
      */
-    private boolean isShowIcon = true;
+    private boolean showIcon = true;
 
     /**
      * 是否显示背景置灰
@@ -70,17 +78,23 @@ public class PopupMenu {
     /**
      * 是否设置动画
      */
-    private boolean isAnimation = true;
+    private boolean showAnimation = true;
 
     /**
      * 动画样式
      */
-    private int animationStyle;
+    @StyleRes
+    private int animationStyle = R.style.f_library_popup_menu_anim_style;
 
     /**
      * 背景alpha值
      */
-    private final float alpha = 0.75f;
+    private float alpha = 0.75f;
+
+    /**
+     * 动画时间
+     */
+    private int duration = 240;
 
     /**
      * 初始化弹出菜单
@@ -92,15 +106,14 @@ public class PopupMenu {
     }
 
     /**
-     * 设置高度
+     * 设置高度(默认WRAP_CONTENT)
      *
      * @param height 目标高度
      * @return 当前对象
      */
-    public PopupMenu setHeight(int height) {
-        if (height <= 0 && height != RecyclerView.LayoutParams.MATCH_PARENT
-                && height != RecyclerView.LayoutParams.WRAP_CONTENT) {
-            this.popHeight = getDefaultHeight();
+    public PopupMenu height(int height) {
+        if (height <= 0 && height != RecyclerView.LayoutParams.MATCH_PARENT) {
+            this.popHeight = RecyclerView.LayoutParams.WRAP_CONTENT;
         } else {
             this.popHeight = height;
         }
@@ -108,12 +121,12 @@ public class PopupMenu {
     }
 
     /**
-     * 设置高度
+     * 设置高度(默认WRAP_CONTENT)
      *
      * @param width 目标宽度
      * @return 当前对象
      */
-    public PopupMenu setWidth(int width) {
+    public PopupMenu width(int width) {
         if (width <= 0 && width != RecyclerView.LayoutParams.MATCH_PARENT) {
             this.popWidth = RecyclerView.LayoutParams.WRAP_CONTENT;
         } else {
@@ -129,7 +142,7 @@ public class PopupMenu {
      * @return 当前对象
      */
     public PopupMenu showIcon(boolean isShow) {
-        this.isShowIcon = isShow;
+        this.showIcon = isShow;
         return this;
     }
 
@@ -167,13 +180,39 @@ public class PopupMenu {
     }
 
     /**
-     * 否是需要动画
+     * 设置透明度
      *
-     * @param isAnimation 是否需要动画
+     * @param alpha 透明度（0~1）
      * @return 当前对象
      */
-    public PopupMenu showAnimation(boolean isAnimation) {
-        this.isAnimation = isAnimation;
+    public PopupMenu alpha(float alpha) {
+        if (alpha >= 0 && alpha <= 1) {
+            this.alpha = alpha;
+        }
+        return this;
+    }
+
+    /**
+     * 设置动画时间
+     *
+     * @param duration 动画时间
+     * @return 当前对象
+     */
+    public PopupMenu duration(int duration) {
+        if (duration > 0) {
+            this.duration = duration;
+        }
+        return this;
+    }
+
+    /**
+     * 否是需要动画
+     *
+     * @param showAnimation 是否需要动画
+     * @return 当前对象
+     */
+    public PopupMenu showAnimation(boolean showAnimation) {
+        this.showAnimation = showAnimation;
         return this;
     }
 
@@ -183,7 +222,7 @@ public class PopupMenu {
      * @param style 设置动画
      * @return 当前对象
      */
-    public PopupMenu setAnimationStyle(int style) {
+    public PopupMenu animationStyle(@StyleRes int style) {
         if (style > 0) {
             this.animationStyle = style;
         }
@@ -196,8 +235,30 @@ public class PopupMenu {
      * @param listener 监听器
      * @return 当前对象
      */
-    public PopupMenu setOnMenuItemClickListener(OnMenuItemClickListener listener) {
+    public PopupMenu onMenuItemClickListener(OnMenuItemClickListener listener) {
         this.onMenuItemClickListener = listener;
+        return this;
+    }
+
+    /**
+     * 设置菜单显示前事件
+     *
+     * @param listener 监听器
+     * @return 当前对象
+     */
+    public PopupMenu onBeforeShowListener(OnBeforeShowListener listener) {
+        this.onBeforeShowListener = listener;
+        return this;
+    }
+
+    /**
+     * 设置菜单消失后事件
+     *
+     * @param listener 监听器
+     * @return 当前对象
+     */
+    public PopupMenu onDismissListener(PopupWindow.OnDismissListener listener) {
+        this.onDismissListener = listener;
         return this;
     }
 
@@ -205,11 +266,18 @@ public class PopupMenu {
      * 显示下拉菜单
      *
      * @param anchor 目标对象
-     * @return 当前对象
+     * @return 弹出窗口对象
      */
-    public PopupMenu showAsDropDown(View anchor) {
-        showAsDropDown(anchor, 0, 0);
-        return this;
+    public PopupWindow showAsDropDown(View anchor) {
+        this.build();
+        if (!popupWindow.isShowing()) {
+            if (onBeforeShowListener != null) {
+                this.onBeforeShowListener.onBeforeShow(popupWindow);
+            }
+            backgroundDark();
+            popupWindow.showAsDropDown(anchor);
+        }
+        return popupWindow;
     }
 
     /**
@@ -218,19 +286,81 @@ public class PopupMenu {
      * @param anchor  目标对象
      * @param xOffset 横向偏移
      * @param yOffset 纵向偏移
-     * @return 当前对象
+     * @return 弹出窗口对象
      */
-    public PopupMenu showAsDropDown(View anchor, int xOffset, int yOffset) {
+    public PopupWindow showAsDropDown(View anchor, int xOffset, int yOffset) {
+        this.build();
+        if (!popupWindow.isShowing()) {
+            if (onBeforeShowListener != null) {
+                this.onBeforeShowListener.onBeforeShow(popupWindow);
+            }
+            backgroundDark();
+            popupWindow.showAsDropDown(anchor, xOffset, yOffset);
+        }
+        return popupWindow;
+    }
+
+    /**
+     * 显示下拉菜单
+     *
+     * @param anchor  目标对象
+     * @param xOffset 横向偏移
+     * @param yOffset 纵向偏移
+     * @return 弹出窗口对象
+     */
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public PopupWindow showAsDropDown(View anchor, int xOffset, int yOffset, int gravity) {
+        this.build();
+        if (!popupWindow.isShowing()) {
+            if (onBeforeShowListener != null) {
+                this.onBeforeShowListener.onBeforeShow(popupWindow);
+            }
+            backgroundDark();
+            popupWindow.showAsDropDown(anchor, xOffset, yOffset, gravity);
+        }
+        return popupWindow;
+    }
+
+    /**
+     * 显示下拉菜单
+     *
+     * @param parent  父容器
+     * @param gravity 基准点
+     * @param x       x轴偏移
+     * @param y       y轴偏移
+     * @return 弹出窗口对象
+     */
+    public PopupWindow showAtLocation(View parent, int gravity, int x, int y) {
+        this.build();
+        if (!popupWindow.isShowing()) {
+            if (onBeforeShowListener != null) {
+                this.onBeforeShowListener.onBeforeShow(popupWindow);
+            }
+            backgroundDark();
+            popupWindow.showAtLocation(parent, gravity, x, y);
+        }
+        return popupWindow;
+    }
+
+    /**
+     * 关闭对话框
+     */
+    public void dismiss() {
+        if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+        }
+    }
+
+    /**
+     * 获取弹出框
+     *
+     * @return 弹出框
+     */
+    public PopupWindow build() {
         if (popupWindow == null) {
             initPopupWindow();
         }
-        if (!popupWindow.isShowing()) {
-            popupWindow.showAsDropDown(anchor, xOffset, yOffset);
-            if (enableBackgroundDark) {
-                setBackgroundAlpha(1f, alpha, 240);
-            }
-        }
-        return this;
+        return popupWindow;
     }
 
     /**
@@ -239,60 +369,65 @@ public class PopupMenu {
      * @return 弹窗对象
      */
     private PopupWindow initPopupWindow() {
-
-        View contentView = LayoutInflater.from(activity).inflate(R.layout.f_library_popup_menu, null);
-        popupWindow = new PopupWindow(contentView);
-        popupWindow.setHeight(popHeight);
-        popupWindow.setWidth(popWidth);
-        if (isAnimation) {
-            popupWindow.setAnimationStyle(animationStyle <= 0 ? R.style.f_library_popup_menu_anim_style : animationStyle);
-        }
-
-        popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new ColorDrawable());
-        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                if (enableBackgroundDark) {
-                    setBackgroundAlpha(alpha, 1f, 300);
+        synchronized (this) {
+            if (popupWindow == null) {
+                View contentView = LayoutInflater.from(activity).inflate(R.layout.f_library_popup_menu, null);
+                popupWindow = new PopupWindow(contentView);
+                popupWindow.setHeight(popHeight);
+                popupWindow.setWidth(popWidth);
+                if (showAnimation) {
+                    popupWindow.setAnimationStyle(animationStyle);
                 }
-            }
-        });
+                popupWindow.setFocusable(true);
+                popupWindow.setOutsideTouchable(true);
+                popupWindow.setBackgroundDrawable(new ColorDrawable());
+                popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                    @Override
+                    public void onDismiss() {
+                        backgroundReset();
+                        if (onDismissListener != null) {
+                            onDismissListener.onDismiss();
+                        }
+                    }
+                });
 
-        popupListMenuAdapter = new PopupListMenuAdapter(activity, this, menuItems, isShowIcon);
-        popupListMenuAdapter.setData(menuItems);
-        popupListMenuAdapter.setShowIcon(isShowIcon);
-        if (this.onMenuItemClickListener != null) {
-            popupListMenuAdapter.setOnMenuItemClickListener(this.onMenuItemClickListener);
+                popupListMenuAdapter = new PopupListMenuAdapter(activity, this, menuItems, showIcon);
+                if (this.onMenuItemClickListener != null) {
+                    popupListMenuAdapter.setOnMenuItemClickListener(this.onMenuItemClickListener);
+                }
+                RecyclerView recyclerView = contentView.findViewById(R.id.recyclerview);
+                recyclerView.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false));
+                recyclerView.setAdapter(popupListMenuAdapter);
+                popupWindow.update();
+            }
         }
-        RecyclerView recyclerView = contentView.findViewById(R.id.recyclerview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(popupListMenuAdapter);
-        popupWindow.update();
         return popupWindow;
     }
 
     /**
-     * 获取默认高度
-     *
-     * @return 根据ITEM个数计算默认高度
+     * 背景变暗
      */
-    private int getDefaultHeight() {
-        if (this.menuItems == null || this.menuItems.size() <= 0) {
-            return DEFAULT_ITEM_HEIGHT;
-        }
-        return this.menuItems.size() * DEFAULT_ITEM_HEIGHT;
+    private void backgroundDark() {
+        setBackgroundAlpha(1f, alpha);
     }
+
+    /**
+     * 背景复原
+     */
+    private void backgroundReset() {
+        if (enableBackgroundDark) {
+            setBackgroundAlpha(alpha, 1f);
+        }
+    }
+
 
     /**
      * 设置背景色透明度
      *
-     * @param from     起始透明度
-     * @param to       目标透明度
-     * @param duration 过渡时间
+     * @param from 起始透明度
+     * @param to   目标透明度
      */
-    private void setBackgroundAlpha(float from, float to, int duration) {
+    private void setBackgroundAlpha(float from, float to) {
         final WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
         ValueAnimator animator = ValueAnimator.ofFloat(from, to);
         animator.setDuration(duration);
@@ -307,18 +442,16 @@ public class PopupMenu {
     }
 
     /**
-     * 关闭对话框
-     */
-    public void dismiss() {
-        if (popupWindow != null && popupWindow.isShowing()) {
-            popupWindow.dismiss();
-        }
-    }
-
-    /**
      * 菜单项单击事件
      */
     public interface OnMenuItemClickListener {
         void onMenuItemClick(int position, MenuItem item);
+    }
+
+    /**
+     * 菜单显示前事件
+     */
+    public interface OnBeforeShowListener {
+        void onBeforeShow(PopupWindow popupWindow);
     }
 }

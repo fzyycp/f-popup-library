@@ -3,6 +3,7 @@ package cn.faury.android.library.popup;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,21 +23,11 @@ public class PopupListMenuAdapter extends RecyclerView.Adapter<PopupListMenuAdap
     private PopupMenu popupMenu;
     private PopupMenu.OnMenuItemClickListener onMenuItemClickListener;
 
-    public PopupListMenuAdapter(Context context, PopupMenu topRightMenu, List<MenuItem> menuItemList, boolean show) {
+    public PopupListMenuAdapter(@NonNull Context context, @NonNull PopupMenu popupMenu, @NonNull List<MenuItem> menuItemList, boolean show) {
         this.context = context;
-        this.popupMenu = topRightMenu;
+        this.popupMenu = popupMenu;
         this.menuItemList = menuItemList;
         this.showIcon = show;
-    }
-
-    public void setData(List<MenuItem> data) {
-        menuItemList = data;
-        notifyDataSetChanged();
-    }
-
-    public void setShowIcon(boolean showIcon) {
-        this.showIcon = showIcon;
-        notifyDataSetChanged();
     }
 
     @Override
@@ -48,10 +39,10 @@ public class PopupListMenuAdapter extends RecyclerView.Adapter<PopupListMenuAdap
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final MenuItem menuItem = menuItemList.get(position);
-        if (showIcon) {
+        int resId = menuItem.getIcon();
+        if (showIcon && resId > 0) {
             holder.icon.setVisibility(View.VISIBLE);
-            int resId = menuItem.getIcon();
-            holder.icon.setImageResource(resId < 0 ? 0 : resId);
+            holder.icon.setImageResource(resId);
         } else {
             holder.icon.setVisibility(View.GONE);
         }

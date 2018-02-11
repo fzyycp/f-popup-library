@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 4
-        versionName "0.0.4"
+        versionCode 9
+        versionName "0.0.9"
     }
 
     buildTypes {
@@ -23,16 +23,19 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+//    implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:recyclerview-v7:26.1.0'
 }
 
 publish {
 // gradlew clean build bintrayUpload -PbintrayUser=用户名 -PbintrayKey=apikey -PdryRun=false
     userOrg = 'faury'//bintray.com用户名
+    bintrayUser = BINTRAY_USER
+    bintrayKey = BINTRAY_KEY
+    dryRun = false
     groupId = 'cn.faury.android.library'//jcenter上的路径
     artifactId = 'f-popup-library'//项目名称
-    publishVersion = '0.0.4'//版本号
+    publishVersion = '0.0.9'//版本号
     desc = 'this is an andriod library'//描述
     website = 'https://github.com/fzyycp/f-popup-library'//github上的地址
 }

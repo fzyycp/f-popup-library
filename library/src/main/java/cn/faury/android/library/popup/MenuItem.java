@@ -12,6 +12,7 @@ public class MenuItem {
      * 菜单ID
      */
     private int id;
+
     /**
      * 菜单图片
      */
@@ -24,28 +25,21 @@ public class MenuItem {
 
     /**
      * 构造函数
+     *
+     * @param id   菜单ID
      * @param text 菜单内容ID
      */
-    public MenuItem(@StringRes int text) {
-        this.text = text;
-    }
-
-    /**
-     * 构造函数
-     * @param iconId 图标ID
-     * @param text 菜单内容ID
-     */
-    public MenuItem(@DrawableRes int iconId, @StringRes int text) {
-        this.icon = iconId;
+    public MenuItem(@IdRes int id, @StringRes int text) {
+        this.id = id;
         this.text = text;
     }
 
     /**
      * 构造函数
      *
-     * @param id 菜单ID
+     * @param id     菜单ID
      * @param iconId 图标ID
-     * @param text 菜单内容ID
+     * @param text   菜单内容ID
      */
     public MenuItem(@IdRes int id, @DrawableRes int iconId, @StringRes int text) {
         this.id = id;
@@ -56,10 +50,6 @@ public class MenuItem {
     @IdRes
     public int getId() {
         return id;
-    }
-
-    public void setId(@IdRes int id) {
-        this.id = id;
     }
 
     @DrawableRes
@@ -75,9 +65,5 @@ public class MenuItem {
     @StringRes
     public int getText() {
         return text;
-    }
-
-    public void setText(@StringRes int text) {
-        this.text = text;
     }
 }

@@ -2,7 +2,6 @@ package cn.faury.android.library.popup;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -81,7 +80,7 @@ public class PopupMenu {
     /**
      * 背景alpha值
      */
-    private float alpha = 0.75f;
+    private final float alpha = 0.75f;
 
     /**
      * 初始化弹出菜单
@@ -240,14 +239,9 @@ public class PopupMenu {
      * @return 弹窗对象
      */
     private PopupWindow initPopupWindow() {
-        popupWindow = new PopupWindow(activity);
 
         View contentView = LayoutInflater.from(activity).inflate(R.layout.f_library_popup_menu, null);
-        RecyclerView recyclerView = contentView.findViewById(R.id.recyclerview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false));
-        recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-
-        popupWindow.setContentView(contentView);
+        popupWindow = new PopupWindow(contentView);
         popupWindow.setHeight(popHeight);
         popupWindow.setWidth(popWidth);
         if (isAnimation) {
@@ -256,7 +250,7 @@ public class PopupMenu {
 
         popupWindow.setFocusable(true);
         popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.LTGRAY));
+        popupWindow.setBackgroundDrawable(new ColorDrawable());
         popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
@@ -272,7 +266,10 @@ public class PopupMenu {
         if (this.onMenuItemClickListener != null) {
             popupListMenuAdapter.setOnMenuItemClickListener(this.onMenuItemClickListener);
         }
+        RecyclerView recyclerView = contentView.findViewById(R.id.recyclerview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(popupListMenuAdapter);
+        popupWindow.update();
         return popupWindow;
     }
 
